@@ -2,7 +2,8 @@
 import { GoogleGenAI } from "@google/genai";
 import { Message } from "../types.ts";
 
-const API_KEY = process.env.API_KEY || "";
+// Clave API configurada explícitamente para despliegue directo
+const API_KEY = "AIzaSyACOTIFmKBdliG4zeCmml10iQznJONuxBI";
 const ai = new GoogleGenAI({ apiKey: API_KEY });
 
 const SYSTEM_INSTRUCTION = `
