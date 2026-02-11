@@ -1,8 +1,7 @@
-
 import { GoogleGenAI } from "@google/genai";
 import { Message } from "../types.ts";
 
-// Clave API configurada explícitamente para despliegue directo
+// Clave API configurada explícitamente para despliegue directo en Vercel
 const API_KEY = "AIzaSyACOTIFmKBdliG4zeCmml10iQznJONuxBI";
 const ai = new GoogleGenAI({ apiKey: API_KEY });
 
