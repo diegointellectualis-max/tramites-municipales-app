@@ -1,8 +1,8 @@
 
 import React, { useState } from 'react';
-import { AREAS, TRAMITES, SEGUIMIENTOS_MOCK } from './constants';
-import { Seguimiento, TramiteStatus } from './types';
-import ChatAssistant from './components/ChatAssistant';
+import { AREAS, TRAMITES, SEGUIMIENTOS_MOCK } from './constants.tsx';
+import { Seguimiento, TramiteStatus } from './types.ts';
+import ChatAssistant from './components/ChatAssistant.tsx';
 
 const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'inicio' | 'seguimiento' | 'info'>('inicio');
@@ -24,7 +24,6 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50">
-      {/* Top Banner */}
       <header className="bg-white border-b border-slate-200 sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-20 items-center">
@@ -70,9 +69,7 @@ const App: React.FC = () => {
         </div>
       </header>
 
-      {/* Main Content */}
       <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8">
-        
         {activeTab === 'inicio' && (
           <section className="space-y-12">
             <div className="text-center max-w-2xl mx-auto space-y-4">
@@ -295,7 +292,6 @@ const App: React.FC = () => {
         )}
       </main>
 
-      {/* Footer */}
       <footer className="bg-white border-t border-slate-200 py-12">
         <div className="max-w-7xl mx-auto px-4 text-center">
           <div className="flex justify-center gap-8 mb-8 grayscale opacity-50">
@@ -311,7 +307,6 @@ const App: React.FC = () => {
         </div>
       </footer>
 
-      {/* Chat Bot Assistant */}
       <ChatAssistant />
     </div>
   );
