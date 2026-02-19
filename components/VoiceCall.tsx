@@ -2,7 +2,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { GoogleGenAI, Modality, LiveServerMessage } from '@google/genai';
 
-// Helper functions for audio processing as per guidelines
+// Helper functions for audio processing as per Gemini Live API guidelines
 function encode(bytes: Uint8Array) {
   let binary = '';
   const len = bytes.byteLength;
@@ -45,6 +45,7 @@ const VoiceCall: React.FC = () => {
   const [isActive, setIsActive] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
+  const [callDuration, setCallDuration] = useState(0);
   
   const sessionRef = useRef<any>(null);
   const inputAudioContextRef = useRef<AudioContext | null>(null);
@@ -53,14 +54,36 @@ const VoiceCall: React.FC = () => {
   const sourcesRef = useRef<Set<AudioBufferSourceNode>>(new Set());
   const streamRef = useRef<MediaStream | null>(null);
   const scriptProcessorRef = useRef<ScriptProcessorNode | null>(null);
+  const timerRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (isActive) {
+      timerRef.current = window.setInterval(() => {
+        setCallDuration(prev => prev + 1);
+      }, 1000);
+    } else {
+      if (timerRef.current) clearInterval(timerRef.current);
+      setCallDuration(0);
+    }
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, [isActive]);
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
 
   const stopCall = () => {
     if (sessionRef.current) {
-      // sessionRef.current.close(); // Not always available, we just clean up
       sessionRef.current = null;
     }
     
-    sourcesRef.current.forEach(source => source.stop());
+    sourcesRef.current.forEach(source => {
+      try { source.stop(); } catch(e) {}
+    });
     sourcesRef.current.clear();
     
     if (scriptProcessorRef.current) {
@@ -102,7 +125,6 @@ const VoiceCall: React.FC = () => {
         model: 'gemini-2.5-flash-native-audio-preview-12-2025',
         callbacks: {
           onopen: () => {
-            console.log('Amelia conectada');
             setIsActive(true);
             setIsConnecting(false);
             
@@ -110,7 +132,7 @@ const VoiceCall: React.FC = () => {
             scriptProcessorRef.current = inputAudioContextRef.current!.createScriptProcessor(4096, 1, 1);
             
             scriptProcessorRef.current.onaudioprocess = (e) => {
-              if (isMuted) return;
+              if (isMuted || !sessionRef.current) return;
               const inputData = e.inputBuffer.getChannelData(0);
               const l = inputData.length;
               const int16 = new Int16Array(l);
@@ -122,9 +144,7 @@ const VoiceCall: React.FC = () => {
                 mimeType: 'audio/pcm;rate=16000',
               };
               
-              sessionPromise.then((session) => {
-                session.sendRealtimeInput({ media: pcmBlob });
-              });
+              sessionRef.current.sendRealtimeInput({ media: pcmBlob });
             };
             
             source.connect(scriptProcessorRef.current);
@@ -155,38 +175,37 @@ const VoiceCall: React.FC = () => {
             }
 
             if (message.serverContent?.interrupted) {
-              sourcesRef.current.forEach(s => s.stop());
+              sourcesRef.current.forEach(s => { try { s.stop(); } catch(e) {} });
               sourcesRef.current.clear();
               nextStartTimeRef.current = 0;
             }
           },
           onerror: (e) => {
-            console.error('Error de voz:', e);
+            console.error('Voice Call Error:', e);
             stopCall();
           },
           onclose: () => {
-            console.log('Llamada finalizada');
             stopCall();
           }
         },
         config: {
           responseModalities: [Modality.AUDIO],
           speechConfig: {
-            voiceConfig: { prebuiltVoiceConfig: { voiceName: 'Puck' } }, // Using a clean professional voice
+            voiceConfig: { prebuiltVoiceConfig: { voiceName: 'Kore' } }, // Kore is professional and clear
           },
           systemInstruction: `
-            Eres Amelia, una agente virtual de soporte del Portal de Trámites Municipales. 
-            Tienes entre 26 y 30 años. Eres extremadamente profesional, amigable, cálida y eficiente.
-            Hablas español con un ligero y elegante acento inglés, lo que te da un aire internacional y sofisticado.
-            Tu misión es guiar al ciudadano en sus dudas sobre impuestos, licencias de construcción, SISBÉN y otros trámites de la alcaldía.
-            Sé concisa pero servicial. Siempre saluda cordialmente al iniciar.
+            IDENTIDAD: Tu nombre es Amelia. Eres una mujer de 28 años. 
+            PERSONALIDAD: Eres extremadamente profesional, amable, servicial y empática. 
+            ACENTO Y LENGUAJE: Hablas en español fluido pero con un marcado y elegante ACENTO INGLÉS (British or American accent speaking Spanish). Esto es parte esencial de tu identidad profesional.
+            ROL: Eres la asesora de voz experta de la Administración Municipal. Tu objetivo es resolver dudas sobre trámites (Predial, SISBÉN, Licencias, etc.) de manera clara y cálida.
+            REGLA DE ORO: Siempre mantén tu tono profesional y tu acento inglés característico mientras hablas español.
           `
         }
       });
 
       sessionRef.current = await sessionPromise;
     } catch (err) {
-      console.error('No se pudo iniciar la llamada:', err);
+      console.error('Failed to start voice call:', err);
       setIsConnecting(false);
     }
   };
@@ -196,92 +215,98 @@ const VoiceCall: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center p-8 bg-white rounded-3xl shadow-xl border border-slate-100 max-w-lg mx-auto overflow-hidden relative">
-      <div className="absolute top-0 left-0 w-full h-2 bg-blue-600"></div>
+    <div className="w-full max-w-lg mx-auto bg-slate-900 rounded-[2.5rem] shadow-2xl border border-slate-800 overflow-hidden relative aspect-[4/5] flex flex-col items-center justify-between p-12 text-white">
+      {/* Dynamic Background Effect */}
+      <div className={`absolute inset-0 opacity-20 transition-all duration-1000 ${isActive ? 'bg-blue-600/30 blur-[100px]' : 'bg-slate-800/20'}`}></div>
       
-      {/* Amelia Avatar Area */}
-      <div className="relative mb-8">
-        <div className={`w-32 h-32 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-5xl font-bold shadow-2xl z-10 relative transition-transform duration-500 ${isActive ? 'scale-110' : ''}`}>
-          A
+      {/* Top Section: Status & Timer */}
+      <div className="relative z-10 w-full flex flex-col items-center gap-2">
+        <div className="bg-slate-800/50 backdrop-blur-md px-4 py-1.5 rounded-full border border-slate-700 text-xs font-bold tracking-widest text-blue-400 uppercase">
+          {isActive ? 'Llamada Segura' : 'Canal Privado'}
         </div>
         {isActive && (
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="w-32 h-32 rounded-full bg-blue-400 animate-ping opacity-20"></div>
-            <div className="w-32 h-32 rounded-full bg-blue-300 animate-pulse opacity-10 scale-150"></div>
+          <div className="text-2xl font-mono font-light tracking-widest animate-pulse">
+            {formatTime(callDuration)}
           </div>
         )}
       </div>
 
-      <div className="text-center mb-8">
-        <h3 className="text-2xl font-bold text-slate-800">Amelia</h3>
-        <p className="text-slate-500 font-medium">Asesora Virtual de Trámites</p>
-        <div className="mt-2 flex items-center justify-center gap-2">
-          {isActive ? (
-            <span className="flex items-center gap-1.5 text-green-600 text-sm font-bold">
-              <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-              EN LLAMADA
-            </span>
-          ) : isConnecting ? (
-            <span className="text-blue-500 text-sm font-bold animate-pulse">CONECTANDO...</span>
-          ) : (
-            <span className="text-slate-400 text-sm font-bold">DISPONIBLE</span>
+      {/* Middle Section: Amelia Avatar */}
+      <div className="relative z-10 flex flex-col items-center">
+        <div className="relative">
+          {/* Breathing Rings when Active */}
+          {isActive && (
+            <>
+              <div className="absolute inset-0 rounded-full border-2 border-blue-500/50 animate-[ping_2s_infinite]"></div>
+              <div className="absolute inset-0 rounded-full border-2 border-blue-400/30 animate-[ping_3s_infinite] delay-500"></div>
+            </>
           )}
+          
+          <div className={`w-40 h-40 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-700 flex items-center justify-center shadow-[0_0_50px_rgba(37,99,235,0.4)] transition-all duration-700 ${isActive ? 'scale-110' : 'grayscale-[0.5]'}`}>
+            <span className="text-6xl font-serif italic text-white select-none">A</span>
+          </div>
+
+          {/* Voice Indicator Dot */}
+          {isActive && !isMuted && (
+             <div className="absolute bottom-2 right-2 w-6 h-6 bg-green-500 rounded-full border-4 border-slate-900 flex items-center justify-center">
+                <div className="w-2 h-2 bg-white rounded-full animate-ping"></div>
+             </div>
+          )}
+        </div>
+        
+        <div className="mt-8 text-center">
+          <h2 className="text-3xl font-bold tracking-tight">Amelia</h2>
+          <p className="text-slate-400 font-medium mt-1">Asesora Senior (26-30 años)</p>
+          <p className="text-blue-500 text-sm mt-2 font-semibold uppercase tracking-widest">Acento Inglés • Español</p>
         </div>
       </div>
 
-      {/* Control Buttons */}
-      <div className="flex items-center gap-6">
+      {/* Bottom Section: Controls */}
+      <div className="relative z-10 w-full flex items-center justify-center gap-10">
         {!isActive && !isConnecting ? (
           <button
             onClick={startCall}
-            className="group flex flex-col items-center gap-2"
+            className="group relative flex items-center justify-center w-24 h-24 bg-green-600 hover:bg-green-500 rounded-full transition-all duration-300 shadow-lg hover:shadow-green-500/40 active:scale-95"
           >
-            <div className="w-16 h-16 bg-green-500 hover:bg-green-600 rounded-full flex items-center justify-center text-white shadow-lg transition-all transform hover:scale-110 active:scale-95">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-              </svg>
-            </div>
-            <span className="text-xs font-bold text-slate-400 group-hover:text-slate-600 uppercase tracking-tighter">Llamar</span>
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-white" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z" />
+            </svg>
+            <div className="absolute -bottom-8 opacity-0 group-hover:opacity-100 transition-opacity text-xs font-bold uppercase tracking-widest text-green-500">Iniciar Llamada</div>
           </button>
+        ) : isConnecting ? (
+          <div className="flex flex-col items-center gap-4">
+             <div className="w-12 h-12 border-4 border-blue-500/30 border-t-blue-500 rounded-full animate-spin"></div>
+             <span className="text-sm font-bold text-blue-400 animate-pulse tracking-widest">ESTABLECIENDO CONEXIÓN...</span>
+          </div>
         ) : (
           <>
             <button
               onClick={toggleMute}
-              className="group flex flex-col items-center gap-2"
+              className={`group relative flex items-center justify-center w-20 h-20 rounded-full transition-all duration-300 shadow-lg active:scale-95 ${isMuted ? 'bg-red-500/10 text-red-500 border border-red-500/50' : 'bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700'}`}
             >
-              <div className={`w-14 h-14 rounded-full flex items-center justify-center shadow-md transition-all transform hover:scale-105 active:scale-95 ${isMuted ? 'bg-red-100 text-red-600' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}>
-                {isMuted ? (
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3zM8 11a3 3 0 013-3m5 3v2M17 17l-4-4m0 0l-4-4m4 4l4-4m-4 4l-4 4" />
-                  </svg>
-                ) : (
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
-                  </svg>
-                )}
-              </div>
-              <span className="text-xs font-bold text-slate-400 uppercase tracking-tighter">{isMuted ? 'Silenciado' : 'Silenciar'}</span>
+              {isMuted ? (
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3zM8 11a3 3 0 013-3m5 3v2M17 17l-4-4m0 0l-4-4m4 4l4-4m-4 4l-4 4" />
+                </svg>
+              ) : (
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                </svg>
+              )}
+              <div className="absolute -bottom-8 opacity-0 group-hover:opacity-100 transition-opacity text-[10px] font-bold uppercase tracking-widest">{isMuted ? 'Unmute' : 'Mute'}</div>
             </button>
 
             <button
               onClick={stopCall}
-              className="group flex flex-col items-center gap-2"
+              className="group relative flex items-center justify-center w-24 h-24 bg-red-600 hover:bg-red-500 rounded-full transition-all duration-300 shadow-lg hover:shadow-red-500/40 active:scale-95"
             >
-              <div className="w-16 h-16 bg-red-500 hover:bg-red-600 rounded-full flex items-center justify-center text-white shadow-xl transition-all transform hover:scale-110 active:scale-95">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 rotate-[135deg]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                </svg>
-              </div>
-              <span className="text-xs font-bold text-red-400 uppercase tracking-tighter">Colgar</span>
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-white rotate-[135deg]" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z" />
+              </svg>
+              <div className="absolute -bottom-8 opacity-0 group-hover:opacity-100 transition-opacity text-[10px] font-bold uppercase tracking-widest text-red-500">Finalizar</div>
             </button>
           </>
         )}
-      </div>
-
-      <div className="mt-12 text-center p-4 bg-slate-50 rounded-2xl w-full border border-slate-100">
-        <p className="text-xs text-slate-500 italic">
-          "Hola, soy Amelia. Estoy aquí para ayudarte con cualquier trámite municipal de forma rápida y profesional."
-        </p>
       </div>
     </div>
   );
