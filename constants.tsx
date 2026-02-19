@@ -54,3 +54,10 @@ export const SEGUIMIENTOS_MOCK: Record<string, Seguimiento> = {
     ]
   }
 };
+
+export const BACKGROUND_IMAGES = {
+  inicio: 'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80&w=2000', // Modern Office Lobby
+  seguimiento: 'https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&q=80&w=2000', // Financial/Professional Documents
+  voz: 'https://images.unsplash.com/photo-1557426272-fc759fdf7a8d?auto=format&fit=crop&q=80&w=2000', // Modern Meeting Space
+  info: 'https://images.unsplash.com/photo-1451187530220-cf006d45fba7?auto=format&fit=crop&q=80&w=2000'  // Digital City Connectivity
+};
