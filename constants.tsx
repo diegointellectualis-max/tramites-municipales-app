@@ -1,5 +1,6 @@
 
-import { Area, TramiteInfo, TramiteStatus, Seguimiento } from './types.ts';
+import React from 'react';
+import { Area, TramiteInfo, TramiteStatus, Seguimiento } from './types';
 
 export const AREAS: Area[] = [
   { id: 'planeacion', nombre: 'Secretaría de Planeación', descripcion: 'Gestión del territorio y licencias de construcción.', icono: '🏗️' },
@@ -37,6 +38,7 @@ export const TRAMITES: TramiteInfo[] = [
   }
 ];
 
+// Mock data for search
 export const SEGUIMIENTOS_MOCK: Record<string, Seguimiento> = {
   'RAD-2024-001': {
     idRadicado: 'RAD-2024-001',
@@ -51,4 +53,11 @@ export const SEGUIMIENTOS_MOCK: Record<string, Seguimiento> = {
       { fecha: '2024-01-20', evento: 'Revisión Preliminar', detalle: 'Se verifica cumplimiento de normas urbanísticas.' }
     ]
   }
+};
+
+export const BACKGROUND_IMAGES = {
+  inicio: 'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80&w=2000', // Modern Office Lobby
+  seguimiento: 'https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&q=80&w=2000', // Financial/Professional Documents
+  voz: 'https://images.unsplash.com/photo-1557426272-fc759fdf7a8d?auto=format&fit=crop&q=80&w=2000', // Modern Meeting Space
+  info: 'https://images.unsplash.com/photo-1451187530220-cf006d45fba7?auto=format&fit=crop&q=80&w=2000'  // Digital City Connectivity
 };
