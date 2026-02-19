@@ -1,5 +1,7 @@
 {
   "name": "Portal de Trámites Municipales - Colombia",
   "description": "Plataforma integral para el seguimiento y gestión de trámites administrativos municipales en Colombia, categorizados por secretarías con asistente virtual inteligente.",
-  "requestFramePermissions": []
+  "requestFramePermissions": [
+    "microphone"
+  ]
 }

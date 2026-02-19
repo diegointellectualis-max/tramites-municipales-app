@@ -1,11 +1,12 @@
 
 import React, { useState } from 'react';
-import { AREAS, TRAMITES, SEGUIMIENTOS_MOCK } from './constants.tsx';
-import { Seguimiento, TramiteStatus } from './types.ts';
-import ChatAssistant from './components/ChatAssistant.tsx';
+import { AREAS, TRAMITES, SEGUIMIENTOS_MOCK } from './constants';
+import { Seguimiento, TramiteStatus } from './types';
+import ChatAssistant from './components/ChatAssistant';
+import VoiceCall from './components/VoiceCall';
 
 const App: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'inicio' | 'seguimiento' | 'info'>('inicio');
+  const [activeTab, setActiveTab] = useState<'inicio' | 'seguimiento' | 'info' | 'voz'>('inicio');
   const [searchId, setSearchId] = useState('');
   const [trackingResult, setTrackingResult] = useState<Seguimiento | null>(null);
   const [error, setError] = useState('');
@@ -24,6 +25,7 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50">
+      {/* Top Banner */}
       <header className="bg-white border-b border-slate-200 sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-20 items-center">
@@ -33,13 +35,13 @@ const App: React.FC = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                 </svg>
               </div>
-              <div>
+              <div className="hidden sm:block">
                 <h1 className="text-xl font-bold text-slate-900 leading-tight">Gestión Municipal</h1>
                 <p className="text-sm text-slate-500">Portal Único de Trámites - Colombia</p>
               </div>
             </div>
 
-            <nav className="hidden md:flex space-x-8">
+            <nav className="hidden md:flex space-x-4 lg:space-x-8">
               <button 
                 onClick={() => setActiveTab('inicio')}
                 className={`text-sm font-medium px-3 py-2 rounded-md transition-colors ${activeTab === 'inicio' ? 'bg-blue-50 text-blue-700' : 'text-slate-600 hover:text-blue-600'}`}
@@ -50,26 +52,46 @@ const App: React.FC = () => {
                 onClick={() => setActiveTab('seguimiento')}
                 className={`text-sm font-medium px-3 py-2 rounded-md transition-colors ${activeTab === 'seguimiento' ? 'bg-blue-50 text-blue-700' : 'text-slate-600 hover:text-blue-600'}`}
               >
-                Seguimiento de Radicados
+                Seguimiento
+              </button>
+              <button 
+                onClick={() => setActiveTab('voz')}
+                className={`text-sm font-medium px-3 py-2 rounded-md transition-colors flex items-center gap-2 ${activeTab === 'voz' ? 'bg-blue-50 text-blue-700' : 'text-slate-600 hover:text-blue-600'}`}
+              >
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
+                </span>
+                Hablar con Amelia
               </button>
               <button 
                 onClick={() => setActiveTab('info')}
                 className={`text-sm font-medium px-3 py-2 rounded-md transition-colors ${activeTab === 'info' ? 'bg-blue-50 text-blue-700' : 'text-slate-600 hover:text-blue-600'}`}
               >
-                Información al Ciudadano
+                Información
               </button>
             </nav>
 
-            <div className="flex items-center">
+            <div className="flex items-center gap-2">
+               <button 
+                onClick={() => setActiveTab('voz')}
+                className="md:hidden bg-blue-100 text-blue-700 p-2 rounded-lg"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                </svg>
+              </button>
               <button className="bg-slate-100 text-slate-700 px-4 py-2 rounded-lg text-sm font-semibold hover:bg-slate-200 transition-colors border border-slate-200">
-                Iniciar Sesión
+                Acceder
               </button>
             </div>
           </div>
         </div>
       </header>
 
+      {/* Main Content */}
       <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8">
+        
         {activeTab === 'inicio' && (
           <section className="space-y-12">
             <div className="text-center max-w-2xl mx-auto space-y-4">
@@ -208,22 +230,44 @@ const App: React.FC = () => {
                         </div>
                       </dl>
                     </div>
-
-                    <div className="bg-amber-50 p-6 rounded-2xl border border-amber-200">
-                      <h4 className="font-bold text-amber-900 mb-2 flex items-center gap-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-amber-500" viewBox="0 0 20 20" fill="currentColor">
-                          <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-                        </svg>
-                        Siguientes Pasos
-                      </h4>
-                      <p className="text-sm text-amber-700 leading-relaxed">
-                        Su solicitud se encuentra actualmente en revisión técnica. Recibirá una notificación vía correo electrónico cuando el estado cambie a "Finalizado".
-                      </p>
-                    </div>
                   </div>
                 </div>
               </div>
             )}
+          </section>
+        )}
+
+        {activeTab === 'voz' && (
+          <section className="space-y-12 animate-in fade-in duration-700">
+            <div className="text-center max-w-2xl mx-auto space-y-4">
+              <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight sm:text-4xl">
+                Asistencia por Voz en Tiempo Real
+              </h2>
+              <p className="text-lg text-slate-600">
+                Habla directamente con Amelia, nuestra asesora virtual avanzada, para una experiencia más humana y eficiente.
+              </p>
+            </div>
+            
+            <VoiceCall />
+
+            <div className="max-w-2xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-4 mt-12">
+              <div className="p-4 bg-white rounded-xl border border-slate-200 flex gap-4 items-center">
+                <div className="text-blue-500">
+                   <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  </svg>
+                </div>
+                <p className="text-sm text-slate-600 font-medium">Baja latencia y respuesta inmediata.</p>
+              </div>
+              <div className="p-4 bg-white rounded-xl border border-slate-200 flex gap-4 items-center">
+                <div className="text-blue-500">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                  </svg>
+                </div>
+                <p className="text-sm text-slate-600 font-medium">Conexión segura y encriptada.</p>
+              </div>
+            </div>
           </section>
         )}
 
@@ -274,13 +318,6 @@ const App: React.FC = () => {
                         <p className="text-slate-400 text-sm">01 8000 999 888 (Línea Nacional)</p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-4">
-                      <div className="bg-slate-800 p-3 rounded-lg">📧</div>
-                      <div>
-                        <p className="font-bold">Correo Electrónico</p>
-                        <p className="text-slate-400 text-sm">tramites@alcaldia.gov.co</p>
-                      </div>
-                    </div>
                   </div>
                 </div>
                 <div className="hidden md:block">
@@ -292,6 +329,7 @@ const App: React.FC = () => {
         )}
       </main>
 
+      {/* Footer */}
       <footer className="bg-white border-t border-slate-200 py-12">
         <div className="max-w-7xl mx-auto px-4 text-center">
           <div className="flex justify-center gap-8 mb-8 grayscale opacity-50">
@@ -299,14 +337,10 @@ const App: React.FC = () => {
             <span className="font-bold text-slate-400 uppercase tracking-widest text-xs">Gobierno Digital de Colombia</span>
           </div>
           <p className="text-slate-400 text-xs mb-2">© 2024 Administración Municipal - Todos los derechos reservados.</p>
-          <div className="flex justify-center gap-4 text-xs font-semibold text-slate-500 uppercase">
-            <a href="#" className="hover:text-blue-600">Privacidad</a>
-            <a href="#" className="hover:text-blue-600">Términos de Uso</a>
-            <a href="#" className="hover:text-blue-600">Mapa del Sitio</a>
-          </div>
         </div>
       </footer>
 
+      {/* Chat Bot Assistant */}
       <ChatAssistant />
     </div>
   );

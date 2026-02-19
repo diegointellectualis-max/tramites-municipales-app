@@ -1,5 +1,6 @@
 
-import { Area, TramiteInfo, TramiteStatus, Seguimiento } from './types.ts';
+import React from 'react';
+import { Area, TramiteInfo, TramiteStatus, Seguimiento } from './types';
 
 export const AREAS: Area[] = [
   { id: 'planeacion', nombre: 'Secretaría de Planeación', descripcion: 'Gestión del territorio y licencias de construcción.', icono: '🏗️' },
@@ -37,6 +38,7 @@ export const TRAMITES: TramiteInfo[] = [
   }
 ];
 
+// Mock data for search
 export const SEGUIMIENTOS_MOCK: Record<string, Seguimiento> = {
   'RAD-2024-001': {
     idRadicado: 'RAD-2024-001',
