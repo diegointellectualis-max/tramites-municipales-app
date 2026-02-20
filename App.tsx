@@ -38,12 +38,12 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen flex flex-col relative overflow-hidden font-sans selection:bg-blue-100 selection:text-blue-900">
-      
+
       {/* Dynamic Immersive Background Layer */}
       <div className="fixed inset-0 -z-50 overflow-hidden pointer-events-none">
         {/* We map all images and only show the active one with high opacity to allow cross-fading */}
         {(Object.entries(BACKGROUND_IMAGES) as [keyof typeof BACKGROUND_IMAGES, string][]).map(([key, url]) => (
-          <div 
+          <div
             key={key}
             className={`absolute inset-0 transition-all duration-1000 ease-in-out bg-cover bg-center scale-110 ${activeTab === key ? 'opacity-100 scale-100 translate-z-0' : 'opacity-0 scale-125 translate-z-0'}`}
             style={{
@@ -63,8 +63,8 @@ const App: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-20 items-center">
             {/* Logo Area */}
-            <div 
-              className="flex items-center gap-3 cursor-pointer group" 
+            <div
+              className="flex items-center gap-3 cursor-pointer group"
               onClick={() => setActiveTab('inicio')}
             >
               <div className="bg-blue-600 p-2.5 rounded-2xl text-white shadow-xl shadow-blue-500/30 group-hover:scale-110 transition-all duration-500 ease-out rotate-0 group-hover:rotate-6">
@@ -80,19 +80,19 @@ const App: React.FC = () => {
 
             {/* Desktop Navigation Links */}
             <nav className="hidden md:flex items-center bg-slate-200/40 p-1.5 rounded-full backdrop-blur-sm border border-white/50">
-              <button 
+              <button
                 onClick={() => setActiveTab('inicio')}
                 className={`text-xs font-black uppercase tracking-widest px-5 py-2.5 rounded-full transition-all duration-300 ${activeTab === 'inicio' ? 'bg-white text-blue-700 shadow-md' : 'text-slate-600 hover:text-slate-900'}`}
               >
                 Trámites
               </button>
-              <button 
+              <button
                 onClick={() => setActiveTab('seguimiento')}
                 className={`text-xs font-black uppercase tracking-widest px-5 py-2.5 rounded-full transition-all duration-300 ${activeTab === 'seguimiento' ? 'bg-white text-blue-700 shadow-md' : 'text-slate-600 hover:text-slate-900'}`}
               >
                 Seguimiento
               </button>
-              <button 
+              <button
                 onClick={() => setActiveTab('voz')}
                 className={`text-xs font-black uppercase tracking-widest px-5 py-2.5 rounded-full transition-all duration-300 flex items-center gap-2 ${activeTab === 'voz' ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-600 hover:text-slate-900'}`}
               >
@@ -102,7 +102,7 @@ const App: React.FC = () => {
                 </span>
                 Llamar Amelia
               </button>
-              <button 
+              <button
                 onClick={() => setActiveTab('info')}
                 className={`text-xs font-black uppercase tracking-widest px-5 py-2.5 rounded-full transition-all duration-300 ${activeTab === 'info' ? 'bg-white text-blue-700 shadow-md' : 'text-slate-600 hover:text-slate-900'}`}
               >
@@ -122,15 +122,15 @@ const App: React.FC = () => {
 
       {/* Main Responsive Content Area */}
       <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-12 relative">
-        
+
         {/* Dynamic Transition Wrapper */}
         <div className="transition-all duration-500 ease-out">
-          
+
           {activeTab === 'inicio' && (
             <section className="space-y-16 animate-in fade-in zoom-in-95 duration-700">
               <div className="text-center max-w-3xl mx-auto space-y-6">
                 <h2 className="text-5xl font-black text-slate-900 tracking-tight leading-tight sm:text-6xl">
-                  Trámites sin <br/> <span className="text-blue-600 relative inline-block">
+                  Trámites sin <br /> <span className="text-blue-600 relative inline-block">
                     complicaciones.
                     <span className="absolute bottom-1 left-0 w-full h-3 bg-blue-100 -z-10"></span>
                   </span>
@@ -142,8 +142,8 @@ const App: React.FC = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {AREAS.map(area => (
-                  <div 
-                    key={area.id} 
+                  <div
+                    key={area.id}
                     className="bg-white/40 backdrop-blur-md rounded-[2.5rem] p-10 shadow-sm border border-white hover:border-blue-200 hover:shadow-2xl hover:shadow-blue-500/10 transition-all group cursor-pointer hover:-translate-y-2 duration-500"
                   >
                     <div className="flex items-start justify-between mb-8">
@@ -181,12 +181,12 @@ const App: React.FC = () => {
                 <div className="relative z-10 space-y-10">
                   <div className="space-y-4">
                     <span className="text-blue-500 font-black tracking-[0.3em] uppercase text-xs">Consulta en Tiempo Real</span>
-                    <h2 className="text-5xl font-black leading-tight">Rastrea tu <br/> Solicitud</h2>
+                    <h2 className="text-5xl font-black leading-tight">Rastrea tu <br /> Solicitud</h2>
                   </div>
-                  
+
                   <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-4 bg-white/10 p-2.5 rounded-[2.5rem] border border-white/20 backdrop-blur-md">
-                    <input 
-                      type="text" 
+                    <input
+                      type="text"
                       value={searchId}
                       onChange={(e) => setSearchId(e.target.value.toUpperCase())}
                       placeholder="NÚMERO DE RADICADO..."
@@ -196,7 +196,7 @@ const App: React.FC = () => {
                       CONSULTAR
                     </button>
                   </form>
-                  
+
                   {error && (
                     <div className="animate-in fade-in slide-in-from-top-4">
                       <p className="text-red-400 font-bold bg-red-400/10 p-4 rounded-2xl border border-red-400/20 text-sm flex items-center gap-3">
@@ -208,7 +208,7 @@ const App: React.FC = () => {
                     </div>
                   )}
                 </div>
-                
+
                 {/* Decorative Visuals for Tracking Section */}
                 <div className="absolute top-0 right-0 -mr-20 -mt-20 w-96 h-96 bg-blue-600 rounded-full opacity-10 blur-[120px] animate-pulse"></div>
                 <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 bg-indigo-600 rounded-full opacity-10 blur-[100px]"></div>
@@ -221,11 +221,10 @@ const App: React.FC = () => {
                       <span className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 mb-2 block">Referencia Oficial</span>
                       <h3 className="text-4xl font-mono font-black text-slate-900 tracking-tighter">{trackingResult.idRadicado}</h3>
                     </div>
-                    <div className={`px-8 py-4 rounded-2xl text-sm font-black tracking-widest uppercase border-2 ${
-                      trackingResult.estado === TramiteStatus.APROBADO ? 'bg-green-500 text-white border-green-400' :
-                      trackingResult.estado === TramiteStatus.RECHAZADO ? 'bg-red-500 text-white border-red-400' :
-                      'bg-amber-100 text-amber-700 border-amber-200'
-                    }`}>
+                    <div className={`px-8 py-4 rounded-2xl text-sm font-black tracking-widest uppercase border-2 ${trackingResult.estado === TramiteStatus.APROBADO ? 'bg-green-500 text-white border-green-400' :
+                        trackingResult.estado === TramiteStatus.RECHAZADO ? 'bg-red-500 text-white border-red-400' :
+                          'bg-amber-100 text-amber-700 border-amber-200'
+                      }`}>
                       {trackingResult.estado}
                     </div>
                   </div>
@@ -259,24 +258,24 @@ const App: React.FC = () => {
                     </div>
 
                     <div className="space-y-8">
-                       <div className="bg-slate-900 text-white p-8 rounded-[2.5rem] shadow-xl relative overflow-hidden">
-                          <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-blue-500 mb-6">Información General</h4>
-                          <div className="space-y-6">
-                            <div>
-                              <p className="text-[10px] font-black text-slate-500 mb-1 uppercase tracking-widest">Procedimiento</p>
-                              <p className="font-black text-lg leading-tight">{trackingResult.tramiteNombre}</p>
-                            </div>
-                            <div>
-                              <p className="text-[10px] font-black text-slate-500 mb-1 uppercase tracking-widest">Secretaría</p>
-                              <p className="font-bold">{trackingResult.areaNombre}</p>
-                            </div>
-                            <div>
-                              <p className="text-[10px] font-black text-slate-500 mb-1 uppercase tracking-widest">Última Gestión</p>
-                              <p className="font-black text-blue-400">{trackingResult.ultimaActualizacion}</p>
-                            </div>
+                      <div className="bg-slate-900 text-white p-8 rounded-[2.5rem] shadow-xl relative overflow-hidden">
+                        <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-blue-500 mb-6">Información General</h4>
+                        <div className="space-y-6">
+                          <div>
+                            <p className="text-[10px] font-black text-slate-500 mb-1 uppercase tracking-widest">Procedimiento</p>
+                            <p className="font-black text-lg leading-tight">{trackingResult.tramiteNombre}</p>
                           </div>
-                          <div className="absolute top-0 right-0 w-32 h-32 bg-blue-600/10 rounded-full -mr-16 -mt-16 blur-2xl"></div>
-                       </div>
+                          <div>
+                            <p className="text-[10px] font-black text-slate-500 mb-1 uppercase tracking-widest">Secretaría</p>
+                            <p className="font-bold">{trackingResult.areaNombre}</p>
+                          </div>
+                          <div>
+                            <p className="text-[10px] font-black text-slate-500 mb-1 uppercase tracking-widest">Última Gestión</p>
+                            <p className="font-black text-blue-400">{trackingResult.ultimaActualizacion}</p>
+                          </div>
+                        </div>
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-blue-600/10 rounded-full -mr-16 -mt-16 blur-2xl"></div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -288,13 +287,13 @@ const App: React.FC = () => {
             <section className="space-y-16 animate-in fade-in zoom-in-95 duration-1000">
               <div className="text-center max-w-3xl mx-auto space-y-6">
                 <h2 className="text-5xl font-black text-slate-900 tracking-tight sm:text-6xl">
-                  Amelia: Soporte <br/> <span className="text-blue-600">por Voz.</span>
+                  Amelia: Soporte <br /> <span className="text-blue-600">por Voz.</span>
                 </h2>
                 <p className="text-xl text-slate-500 font-medium max-w-2xl mx-auto leading-relaxed">
                   Conéctese con Amelia para una asistencia rápida, amable y 100% personalizada. Nuestra IA entiende sus necesidades de inmediato.
                 </p>
               </div>
-              
+
               <div className="relative group">
                 {/* Background glow for Amelia component */}
                 <div className="absolute inset-0 bg-blue-500/10 rounded-[3rem] blur-3xl group-hover:bg-blue-500/15 transition-all duration-700"></div>
@@ -304,13 +303,13 @@ const App: React.FC = () => {
               <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 mt-12">
                 <div className="p-8 bg-white/50 backdrop-blur-md rounded-[2.5rem] border border-white shadow-sm flex gap-6 items-center hover:shadow-2xl hover:shadow-blue-500/5 transition-all duration-500 group">
                   <div className="bg-blue-600 p-4 rounded-2xl text-white shadow-lg shadow-blue-500/20 group-hover:rotate-12 transition-all duration-500">
-                     <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                     </svg>
                   </div>
                   <div>
                     <h4 className="text-xl font-black text-slate-900">IA de Vanguardia</h4>
-                    <p className="text-slate-500 font-bold opacity-70">Modelos Gemini 2.5 Live para una charla humana.</p>
+                    <p className="text-slate-500 font-bold opacity-70">Modelos Gemini 1.5 Live para una charla humana.</p>
                   </div>
                 </div>
                 <div className="p-8 bg-white/50 backdrop-blur-md rounded-[2.5rem] border border-white shadow-sm flex gap-6 items-center hover:shadow-2xl hover:shadow-blue-500/5 transition-all duration-500 group">
@@ -374,7 +373,7 @@ const App: React.FC = () => {
                   <div className="space-y-12">
                     <div className="space-y-4">
                       <span className="text-blue-500 font-black tracking-[0.4em] uppercase text-xs">Puntos de Contacto</span>
-                      <h3 className="text-5xl sm:text-6xl font-black leading-tight tracking-tighter">Atención <br/> Presencial.</h3>
+                      <h3 className="text-5xl sm:text-6xl font-black leading-tight tracking-tighter">Atención <br /> Presencial.</h3>
                     </div>
                     <div className="space-y-10">
                       <div className="flex items-center gap-8 group/link">
@@ -396,9 +395,9 @@ const App: React.FC = () => {
                   <div className="hidden lg:block">
                     <div className="relative transform hover:scale-105 transition-transform duration-700">
                       <div className="absolute inset-0 bg-blue-500/20 blur-[120px] rounded-full"></div>
-                      <img 
-                        src="https://images.unsplash.com/photo-1497215728101-856f4ea42174?auto=format&fit=crop&q=80&w=1000" 
-                        alt="Administración Municipal" 
+                      <img
+                        src="https://images.unsplash.com/photo-1497215728101-856f4ea42174?auto=format&fit=crop&q=80&w=1000"
+                        alt="Administración Municipal"
                         className="rounded-[3rem] shadow-2xl relative z-10 brightness-90 grayscale-[0.2] hover:grayscale-0 hover:brightness-100 transition-all duration-700"
                       />
                     </div>
